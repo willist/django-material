@@ -151,6 +151,14 @@ class Row(LayoutNode):
         return elements_iterator
 
 
+class FormSet(LayoutNode):
+
+    template_name = 'layout/formset.html'
+
+    def __init__(self, formset):
+        self.elements = formset
+
+
 class Column(LayoutNode):
     """Place elements vertically stacked, one under another.
 
@@ -189,7 +197,15 @@ class Span(object):
         """
         template_pack = context['form_template_pack']
         form = context['form']
-        bound_field = form[self.field_name]
+
+        try:
+            bound_field = form[self.field_name]
+        except KeyError as orig:
+            try:
+                bound_field = getattr(form, self.field_name)
+                import pdb; pdb.set_trace()
+            except Exception:
+                raise orig
 
         try:
             if 'template' in options:
